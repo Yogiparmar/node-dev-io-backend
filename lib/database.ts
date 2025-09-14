@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -36,7 +36,7 @@ async function connectDB(): Promise<mongoose.Connection> {
     console.log("🔄 Connecting to MongoDB...");
     cached.promise = mongoose
       .connect(MONGODB_URI, {
-        dbName: "tms-systems",
+        dbName: "dev-io",
         bufferCommands: false,
       })
       .then((mongoose) => {
