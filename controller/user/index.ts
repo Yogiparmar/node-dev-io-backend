@@ -149,6 +149,44 @@ const sendForgotPasswordCode = async (
   }
 };
 
+const sendSignInCode = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email_address } = req.body;
+
+    if (!email_address)
+      return negativeHandler(400, "Please provide all required fields.", res);
+
+    const user = await UserModel.findOne({ email_address });
+    if (!user)
+      return negativeHandler(403, "Provided credentials are Invalid.", res);
+
+    const signInCode = Math.floor(100000 + Math.random() * 900000);
+
+    const result = await sendForgotPasswordMail(
+      "sign_in_code",
+      user?.email_address,
+      signInCode,
+      null
+    );
+
+    if (result?.id) {
+      await UserModel.findOneAndUpdate(
+        { email_address },
+        {
+          signInCode,
+          signInCodeExpiredAt: new Date(Date.now() + 3 * 60 * 60 * 1000),
+        }
+      );
+      return positiveHandler(200, "Sign in code Sended Successfully", res);
+    } else {
+      return negativeHandler(500, "Something went wrong.", res);
+    }
+  } catch (error: any) {
+    console.log("FORGOT_PASSWORD_FAIL_ERROR :- ", error);
+    return negativeHandler(500, "Something went wrong.", res);
+  }
+};
+
 const verifyForgotPasswordCode = async (
   req: Request,
   res: Response
@@ -206,6 +244,42 @@ const verifyForgotPasswordCode = async (
         "Reset password link sended successfully",
         res
       );
+    else return negativeHandler(500, "Something went wrong.", res);
+  } catch (error: any) {
+    console.log("FORGOT_CODE_VERIFICATION_FAIL_ERROR :- ", error);
+    return negativeHandler(500, "Something went wrong.", res);
+  }
+};
+
+const verifySignInCode = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email_address, sign_in_code } = await req.body;
+
+    if (!email_address || !sign_in_code)
+      return negativeHandler(400, "Please provide all required fields.", res);
+
+    const user = await UserModel.findOne({ email_address });
+
+    if (!user)
+      return negativeHandler(403, "Provided credentials are Invalid.", res);
+
+    const isCodeValid =
+      user.signInCode === Number(sign_in_code) &&
+      user.signInCodeExpiredAt &&
+      Date.now() < new Date(user.signInCodeExpiredAt).getTime();
+
+    if (!isCodeValid)
+      return negativeHandler(402, "Provided code are invalid or expired.", res);
+
+    await UserModel.findOneAndUpdate(
+      { email_address },
+      {
+        signInCode: null,
+        signInCodeExpiredAt: null,
+      }
+    );
+
+    if (user) return sendToken(201, "User login successful", res, user);
     else return negativeHandler(500, "Something went wrong.", res);
   } catch (error: any) {
     console.log("FORGOT_CODE_VERIFICATION_FAIL_ERROR :- ", error);
@@ -416,7 +490,9 @@ export {
   logoutUser,
   resetPassword,
   sendForgotPasswordCode,
+  sendSignInCode,
   SignUpUser,
   updateUserDetails,
   verifyForgotPasswordCode,
+  verifySignInCode,
 };

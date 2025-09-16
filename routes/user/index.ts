@@ -7,9 +7,11 @@ import {
   logoutUser,
   resetPassword,
   sendForgotPasswordCode,
+  sendSignInCode,
   SignUpUser,
   updateUserDetails,
   verifyForgotPasswordCode,
+  verifySignInCode,
 } from "../../controller/user";
 
 import { authenticateUser } from "../../middleware/auth";
@@ -20,9 +22,11 @@ const router = express.Router();
 router.route("/user/sign-up").post(SignUpUser);
 router.route("/user/sign-in").post(loginUser);
 router.route("/user/forgot-password").post(sendForgotPasswordCode);
+router.route("/user/sign-in-code").post(sendSignInCode);
 router
   .route("/user/verify-forgot-password-code")
   .post(verifyForgotPasswordCode);
+router.route("/user/verify-sign-in-code").post(verifySignInCode);
 router.route("/user/reset-password").post(resetPassword);
 router.route("/user/get-user").get(getUser);
 router.route("/user/change-password").post(authenticateUser, changePassword);

@@ -23,6 +23,8 @@ export interface IUserModel extends Document {
   updated_by?: string;
   verificationCode?: number;
   verificationCodeExpiredAt?: Date;
+  signInCode?: number;
+  signInCodeExpiredAt?: Date;
   resetPasswordToken?: string;
   resetPasswordTokenExpiredAt?: Date;
   created_at: Date;

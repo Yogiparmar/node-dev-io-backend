@@ -33,6 +33,8 @@ const UserSchema: Schema = new Schema<IUserModel>(
     updated_by: { type: String },
     verificationCode: Number,
     verificationCodeExpiredAt: Date,
+    signInCode: Number,
+    signInCodeExpiredAt: Date,
     resetPasswordToken: String,
     resetPasswordTokenExpiredAt: Date,
   },
