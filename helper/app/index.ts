@@ -1,4 +1,5 @@
 import { Response } from "express";
+import jwt from "jsonwebtoken";
 
 class AppHelper {
   public static success(
@@ -7,10 +8,6 @@ class AppHelper {
     message: string,
     data: any = null
   ): void {
-    if (data?.user && data.user.password) {
-      data.user.password = undefined;
-    }
-
     res.status(code).json({
       success: true,
       statusCode: code,
@@ -35,11 +32,7 @@ class AppHelper {
     user: any
   ): void {
     const cookieExpires = Number(process.env.COOKIE_EXPIRES);
-    const access_token = user?.generateToken?.();
-
-    if (user && user.password) {
-      user.password = undefined;
-    }
+    const access_token = this.generateJwt(user?.user_id as any);
 
     const options = {
       httpOnly: true,
@@ -61,6 +54,14 @@ class AppHelper {
 
   public static optionalGenerator(firstName: string, lastName: string): string {
     return `${firstName} ${lastName}`;
+  }
+
+  private static generateJwt(payload: Record<string, any>): string {
+    const tokenSecrete = process.env.JWT_SECRET as any;
+    const tokenExpires = process.env.JWT_EXPIRES as any;
+    return jwt.sign({ user_id: payload }, tokenSecrete, {
+      expiresIn: tokenExpires,
+    });
   }
 }
 

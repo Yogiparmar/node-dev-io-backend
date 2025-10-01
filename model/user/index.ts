@@ -1,12 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-import bcrypt from "bcrypt";
-import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-
 import { IUserModel } from "./interface";
-
-dotenv.config();
 
 const UserSchema: Schema = new Schema<IUserModel>(
   {
@@ -40,21 +34,22 @@ const UserSchema: Schema = new Schema<IUserModel>(
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+    toJSON: {
+      transform: (_, ret: any) => {
+        delete ret._id;
+        delete ret.__v;
+        delete ret.password;
+        delete ret.verificationCode;
+        delete ret.verificationCodeExpiredAt;
+        delete ret.signInCode;
+        delete ret.signInCodeExpiredAt;
+        delete ret.resetPasswordToken;
+        delete ret.resetPasswordTokenExpiredAt;
+        return ret;
+      },
+    },
   }
 );
-
-UserSchema.methods.generateToken = function () {
-  const tokenSecrete = process.env.JWT_SECRET as any;
-  const tokenExpires = process.env.JWT_EXPIRES as any;
-
-  return jwt.sign({ user_id: this.user_id }, tokenSecrete, {
-    expiresIn: tokenExpires,
-  });
-};
-
-UserSchema.methods.comparePassword = async function (incomingPassword: string) {
-  return await bcrypt.compare(incomingPassword, this.password);
-};
 
 export const UserModel =
   mongoose.models.User || mongoose.model<IUserModel>("User", UserSchema);
