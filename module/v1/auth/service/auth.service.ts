@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import { Response } from "express";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { AppHelper, EmailHelper } from "../../../../helper";
@@ -181,10 +182,15 @@ export class AuthService {
     return user;
   }
 
-  public async logout(): Promise<boolean> {
-    // Token-based logout - frontend will remove token from localStorage
-    // No server-side session to clear since we're not using cookies
-    return true;
+  public async logout(res: Response): Promise<void> {
+    // Clear httpOnly cookie
+    res.clearCookie("access_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+    return;
   }
 
   private async hashPassword(password: string) {

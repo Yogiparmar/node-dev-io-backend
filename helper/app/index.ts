@@ -33,11 +33,20 @@ class AppHelper {
   ): void {
     const token = this.generateJwt(user?.user_id as any);
 
+    // Set httpOnly, secure cookie
+    res.cookie("access_token", token, {
+      httpOnly: true, // Cannot be accessed via JavaScript
+      secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      sameSite: "lax", // CSRF protection
+      maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
+      path: "/",
+    });
+
+    // Don't send token in response body for security
     res.status(code).json({
       success: true,
       statusCode: code,
       message,
-      token,
       data: user?._doc || user,
     });
   }

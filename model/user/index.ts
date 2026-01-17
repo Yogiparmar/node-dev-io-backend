@@ -21,7 +21,12 @@ const UserSchema: Schema = new Schema<IUserModel>(
       type: [String],
       default: [],
     },
-    user_type: { type: String },
+    user_type: {
+      type: String,
+      enum: ["user", "editor", "admin", "moderator"],
+      default: "user",
+      required: true,
+    },
     password: { type: String, select: false },
     created_by: { type: String },
     updated_by: { type: String },
@@ -48,7 +53,7 @@ const UserSchema: Schema = new Schema<IUserModel>(
         return ret;
       },
     },
-  }
+  },
 );
 
 export const UserModel =

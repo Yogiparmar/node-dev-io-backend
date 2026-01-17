@@ -1,5 +1,5 @@
 import express from "express";
-import { AsyncHandler } from "../../../../middleware";
+import { AsyncHandler, AuthMiddleware } from "../../../../middleware";
 import { authController } from "../controller/auth.controller";
 
 const router = express.Router();
@@ -16,5 +16,11 @@ router.post(
 router.post("/verify-sign-in-code", wrap(authController.verifySignInCode));
 router.post("/reset-password", wrap(authController.resetPassword));
 router.get("/logout", wrap(authController.logoutUser));
+
+router.get(
+  "/verify",
+  AuthMiddleware.authenticateUser,
+  wrap(authController.verifyToken),
+);
 
 export default router;

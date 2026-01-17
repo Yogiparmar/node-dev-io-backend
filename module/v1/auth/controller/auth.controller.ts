@@ -53,8 +53,14 @@ export class AuthController {
   };
 
   public logoutUser = async (_: Request, res: Response) => {
-    await authService.logout();
+    await authService.logout(res);
     return AppHelper.success(res, 200, "User logout successful");
+  };
+
+  public verifyToken = async (req: Request, res: Response) => {
+    // AuthMiddleware already verified token and populated req.user
+    const user = req.user;
+    return AppHelper.success(res, 200, "Token is valid", { user });
   };
 }
 
