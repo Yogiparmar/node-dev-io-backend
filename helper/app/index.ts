@@ -6,7 +6,7 @@ class AppHelper {
     res: Response,
     code: number,
     message: string,
-    data: any = null
+    data: any = null,
   ): void {
     res.status(code).json({
       success: true,
@@ -29,27 +29,17 @@ class AppHelper {
     res: Response,
     code: number,
     message: string,
-    user: any
+    user: any,
   ): void {
-    const cookieExpires = Number(process.env.COOKIE_EXPIRES);
-    const access_token = this.generateJwt(user?.user_id as any);
+    const token = this.generateJwt(user?.user_id as any);
 
-    const options = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      expires: new Date(Date.now() + cookieExpires * 24 * 60 * 60 * 1000),
-    };
-
-    res
-      .status(code)
-      .cookie("access_token", access_token, options as any)
-      .json({
-        success: true,
-        statusCode: code,
-        message,
-        data: { ...user?._doc, access_token },
-      });
+    res.status(code).json({
+      success: true,
+      statusCode: code,
+      message,
+      token,
+      data: user?._doc || user,
+    });
   }
 
   public static optionalGenerator(firstName: string, lastName: string): string {

@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import { Response } from "express";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { AppHelper, EmailHelper } from "../../../../helper";
@@ -67,7 +66,7 @@ export class AuthService {
     const emailHelper = new EmailHelper();
     const { code: verificationCode, result } = await emailHelper.sendOTP(
       "verification_Code",
-      user.email_address
+      user.email_address,
     );
 
     if (!result?.id) throw new Error("Failed to send verification code");
@@ -77,7 +76,7 @@ export class AuthService {
       {
         verificationCode,
         verificationCodeExpiredAt: new Date(Date.now() + 3 * 60 * 60 * 1000),
-      }
+      },
     );
 
     return true;
@@ -92,7 +91,7 @@ export class AuthService {
     const emailHelper = new EmailHelper();
     const { code: signInCode, result } = await emailHelper.sendOTP(
       "sign_in_code",
-      user.email_address
+      user.email_address,
     );
 
     if (!result?.id) throw new Error("Failed to send sign in code");
@@ -102,7 +101,7 @@ export class AuthService {
       {
         signInCode,
         signInCodeExpiredAt: new Date(Date.now() + 3 * 60 * 60 * 1000),
-      }
+      },
     );
 
     return true;
@@ -122,7 +121,7 @@ export class AuthService {
     const emailHelper = new EmailHelper();
     const { token, result } = await emailHelper.sendLink(
       user.user_id,
-      user.email_address
+      user.email_address,
     );
 
     if (!result?.id) throw new Error("Failed to send reset password link");
@@ -134,7 +133,7 @@ export class AuthService {
         resetPasswordTokenExpiredAt: new Date(Date.now() + 3 * 60 * 60 * 1000),
         verificationCode: null,
         verificationCodeExpiredAt: null,
-      }
+      },
     );
 
     return token;
@@ -153,7 +152,7 @@ export class AuthService {
 
     await UserModel.findOneAndUpdate(
       { email_address: email },
-      { signInCode: null, signInCodeExpiredAt: null }
+      { signInCode: null, signInCodeExpiredAt: null },
     );
 
     return user;
@@ -170,7 +169,7 @@ export class AuthService {
         resetPasswordToken: null,
         resetPasswordTokenExpiredAt: null,
         password: hashed,
-      }
+      },
     );
 
     return updated;
@@ -182,12 +181,10 @@ export class AuthService {
     return user;
   }
 
-  public async logout(res: Response): Promise<void> {
-    res.clearCookie("access_token", {
-      httpOnly: true,
-      sameSite: "strict",
-    });
-    return;
+  public async logout(): Promise<boolean> {
+    // Token-based logout - frontend will remove token from localStorage
+    // No server-side session to clear since we're not using cookies
+    return true;
   }
 
   private async hashPassword(password: string) {

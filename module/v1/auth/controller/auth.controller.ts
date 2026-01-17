@@ -11,7 +11,7 @@ export class AuthController {
       res,
       201,
       "User and organization created successfully",
-      user
+      user,
     );
   };
 
@@ -26,9 +26,9 @@ export class AuthController {
   };
 
   public verifyForgotCode = async (req: Request, res: Response) => {
-    const resetLink = await authService.verifyForgotPasswordCode(
+    await authService.verifyForgotPasswordCode(
       req.body.email_address,
-      req.body.verification_code
+      req.body.verification_code,
     );
     return AppHelper.success(res, 200, "Reset password link sent successfully");
   };
@@ -47,13 +47,13 @@ export class AuthController {
   public verifySignInCode = async (req: Request, res: Response) => {
     const userData = await authService.verifySignInCode(
       req.body.email_address,
-      req.body.sign_in_code
+      req.body.sign_in_code,
     );
     return AppHelper.sendToken(res, 200, "User login successful", userData);
   };
 
   public logoutUser = async (_: Request, res: Response) => {
-    await authService.logout(res);
+    await authService.logout();
     return AppHelper.success(res, 200, "User logout successful");
   };
 }

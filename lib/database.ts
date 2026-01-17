@@ -36,7 +36,7 @@ async function connectDB(): Promise<mongoose.Connection> {
     console.log("🔄 Connecting to MongoDB...");
     cached.promise = mongoose
       .connect(MONGODB_URI, {
-        dbName: "dev-io",
+        dbName: "blog-app",
         bufferCommands: false,
       })
       .then((mongoose) => {
