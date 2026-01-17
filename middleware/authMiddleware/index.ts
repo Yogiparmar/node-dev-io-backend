@@ -12,13 +12,16 @@ export class AuthMiddleware {
   static async authenticateUser(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) {
     try {
-      const { access_token } = req.cookies;
-      if (!access_token) {
+      // Extract token from Authorization header (Bearer token)
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return AppHelper.error(res, 401, "Unauthorized access");
       }
+
+      const access_token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
       const decoded = jwt.verify(access_token, process.env.JWT_SECRET!) as {
         user_id: string;

@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
 
 interface IAvatar {
-  ur: string;
+  url: string;
   public_id: string;
   format: string;
   asset_id: string;
