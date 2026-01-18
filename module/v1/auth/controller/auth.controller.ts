@@ -58,7 +58,6 @@ export class AuthController {
   };
 
   public verifyToken = async (req: Request, res: Response) => {
-    // AuthMiddleware already verified token and populated req.user
     const user = req.user;
     return AppHelper.success(res, 200, "Token is valid", { user });
   };

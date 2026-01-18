@@ -18,6 +18,7 @@ export interface IUserModel extends Document {
   user_type?: string;
   user_preference?: string[];
   password: string;
+  terms_accepted: boolean;
   user_bio?: string;
   created_by?: string;
   updated_by?: string;

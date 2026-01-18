@@ -16,10 +16,15 @@ interface Decoded {
 
 export class AuthService {
   public async signup(data: any) {
-    const { first_name, last_name, email_address, password } = data;
+    const { first_name, last_name, email_address, password, terms_accepted } =
+      data;
 
     if (!first_name || !last_name || !email_address || !password) {
       throw new Error("Please provide all required fields.");
+    }
+
+    if (!terms_accepted) {
+      throw new Error("You must accept the terms and conditions.");
     }
 
     const existingUser = await UserModel.findOne({ email_address });
@@ -35,6 +40,7 @@ export class AuthService {
       full_name: AppHelper.optionalGenerator(first_name, last_name),
       email_address,
       password: hashedPassword,
+      terms_accepted,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -183,11 +189,10 @@ export class AuthService {
   }
 
   public async logout(res: Response): Promise<void> {
-    // Clear httpOnly cookie
     res.clearCookie("access_token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: false,
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "none",
       path: "/",
     });
     return;
